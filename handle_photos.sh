@@ -17,14 +17,22 @@ if [ $? -eq 0 ]; then
 fi
 
 #Separate photos from videos
-mkdir ${PHOTOS_DIR} ${VIDEOS_DIR} || exit 1
-mv -i P1*.JPG ${PHOTOS_DIR} || exit 1
-mv -i P1*.MOV ${VIDEOS_DIR} || exit 1
+mkdir ${PHOTOS_DIR} ${VIDEOS_DIR}
+mv -i P1*.JPG ${PHOTOS_DIR}
+mv -i P1*.MOV ${VIDEOS_DIR}
 
 #Transforms only filenames with P + digit ="1" + 3 insignificant digits + 3 identifier digits + .JPG  to YYYYmmdd_HHMM_xxx.jpg, using exiftool
 #https://www.sno.phy.queensu.ca/~phil/exiftool/
 
+cd ${PHOTOS_DIR}
 for PIC_NAME in $(ls P1*.JPG); do
-    PIC_ID=${X#P1???}
-    mv $PIC_NAME $(exiftool $PIC_NAME |grep "^Create Date"|sed "s/.* : //g;s/\(20..\):\(..\):\(..\) \(..\):\(..\):../\1\2\3_\4\5_${PIC_ID%.JPG}.jpg/g") || exit 1
+    PIC_ID=${PIC_NAME#P1???} ; echo $PIC_ID
+    mv -v $PIC_NAME $(exiftool $PIC_NAME |grep "^Create Date"|sed "s/.* : //g;s/\(20..\):\(..\):\(..\) \(..\):\(..\):../\1\2\3_\4\5_${PIC_ID%.JPG}.jpg/g") || exit 1
+done
+cd ..
+
+cd ${VIDEOS_DIR}
+for VID_NAME in $(ls P1*.MOV); do
+    VID_ID=${VID_NAME#P1???} ; echo $VID_ID
+    mv -v $VID_NAME $(exiftool $VID_NAME |grep "^Create Date"|sed "s/.* : //g;s/\(20..\):\(..\):\(..\) \(..\):\(..\):../\1\2\3_\4\5_${VID_ID%.MOV}.mov/g") || exit 1
 done
